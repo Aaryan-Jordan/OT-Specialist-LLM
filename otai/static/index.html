@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>OT Specialist AI</title>
+<style>
+  :root{
+    --bg:#0d1117; --surf:#161b22; --surf2:#1c232d; --line:#2a323d;
+    --fg:#e6edf3; --mut:#8b949e; --acc:#2f9e6e; --acc2:#3fb950; --user:#1f6feb;
+    --rad:12px; font-synthesis:none;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  [hidden]{display:none!important}
+  header{display:flex;align-items:center;gap:12px;padding:14px 20px;
+    border-bottom:1px solid var(--line);background:var(--surf);position:sticky;top:0;z-index:5}
+  .logo{width:34px;height:34px;border-radius:9px;flex:none;
+    background:linear-gradient(135deg,var(--acc),#1a6);display:grid;place-items:center;
+    color:#fff;font-weight:800;font-size:15px}
+  header h1{font-size:16px;margin:0;font-weight:650;letter-spacing:.2px}
+  header .sub{font-size:12px;color:var(--mut);margin-top:1px}
+  header .me{margin-left:auto;font-size:12.5px;color:var(--mut);display:flex;gap:10px;align-items:center}
+  header .me b{color:var(--fg)}
+  .lnk{color:var(--acc2);cursor:pointer;background:none;border:0;font:inherit;padding:0}
+
+  /* ---- auth ---- */
+  .authwrap{max-width:380px;margin:9vh auto 0;padding:0 20px}
+  .card{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:26px 24px}
+  .card h2{margin:0 0 4px;font-size:18px}
+  .card p.lede{margin:0 0 18px;color:var(--mut);font-size:13px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:12px;color:var(--mut);margin-bottom:5px}
+  .field input{width:100%;background:var(--surf2);border:1px solid var(--line);border-radius:9px;
+    color:var(--fg);padding:10px 12px;font:inherit;outline:none}
+  .field input:focus{border-color:var(--acc)}
+  .btnrow{display:flex;gap:10px;margin-top:16px}
+  button.primary{flex:1;background:var(--acc);color:#fff;border:0;border-radius:10px;padding:11px 16px;
+    font-weight:650;cursor:pointer;font-size:14px}
+  button.primary:disabled{opacity:.5;cursor:default}
+  .swap{margin-top:14px;font-size:12.5px;color:var(--mut);text-align:center}
+  .err{background:#3d1d1d;border:1px solid #5c2b2b;color:#ffb4b4;border-radius:9px;
+    padding:9px 12px;font-size:12.5px;margin-bottom:12px}
+
+  /* ---- chat ---- */
+  .wrap{max-width:820px;margin:0 auto;padding:22px 18px 150px}
+  .msg{display:flex;gap:12px;margin:18px 0}
+  .msg .av{width:30px;height:30px;border-radius:8px;flex:none;display:grid;place-items:center;
+    font-size:13px;font-weight:700}
+  .msg.ai .av{background:var(--surf2);color:var(--acc2);border:1px solid var(--line)}
+  .msg.me .av{background:var(--user);color:#fff}
+  .msg .bubble{background:var(--surf);border:1px solid var(--line);border-radius:var(--rad);
+    padding:11px 14px;white-space:pre-wrap;word-wrap:break-word;max-width:100%}
+  .msg.me .bubble{background:#132b52;border-color:#1c3a63}
+  .msg .who{font-size:11px;color:var(--mut);margin-bottom:4px;text-transform:uppercase;letter-spacing:.6px}
+  .composer{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(transparent,var(--bg) 22%);padding:18px}
+  .composer .box{max-width:820px;margin:0 auto;display:flex;gap:10px;align-items:flex-end;
+    background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:10px}
+  textarea{flex:1;background:transparent;border:0;color:var(--fg);resize:none;outline:none;
+    font:inherit;max-height:160px;padding:6px 8px}
+  button.send{background:var(--acc);color:#fff;border:0;border-radius:10px;padding:9px 16px;
+    font-weight:650;cursor:pointer;font-size:14px}
+  button.send:disabled{opacity:.45;cursor:default}
+  .hint{max-width:820px;margin:8px auto 0;font-size:11.5px;color:var(--mut);text-align:center}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}
+  .chip{background:var(--surf2);border:1px solid var(--line);color:var(--mut);border-radius:20px;
+    padding:6px 12px;font-size:12.5px;cursor:pointer}
+  .chip:hover{color:var(--fg);border-color:#3a4e5c}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--acc2);
+    box-shadow:0 0 0 3px rgba(63,185,80,.18)}
+  .typing span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--mut);
+    margin-right:3px;animation:b 1s infinite}
+  .typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
+  @keyframes b{0%,60%,100%{opacity:.25}30%{opacity:1}}
+</style>
+</head>
+<body>
+
+<header hidden id="hdr">
+  <div class="logo">OT</div>
+  <div>
+    <h1>OT Specialist AI</h1>
+    <div class="sub"><span class="dot"></span> OT engineering assistant</div>
+  </div>
+  <div class="me"><span>signed in as <b id="who"></b></span><button class="lnk" onclick="logout()">Sign out</button></div>
+</header>
+
+<!-- ===== auth ===== -->
+<div class="authwrap" id="auth">
+  <div class="card">
+    <h2 id="auth-title">Sign in</h2>
+    <p class="lede" id="auth-lede">Access the OT Specialist AI engineering assistant.</p>
+    <div class="err" id="auth-err" hidden></div>
+    <div class="field"><label>Username</label>
+      <input id="u" autocomplete="username" autocapitalize="none" spellcheck="false"/></div>
+    <div class="field"><label>Password</label>
+      <input id="p" type="password" autocomplete="current-password"/></div>
+    <div class="btnrow">
+      <button class="primary" id="auth-go" onclick="submitAuth()">Sign in</button>
+    </div>
+    <div class="swap" id="auth-swap">
+      New here? <button class="lnk" onclick="setMode('register')">Create an account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== chat ===== -->
+<div class="wrap" id="feed" hidden></div>
+
+<div class="composer" id="composer" hidden>
+  <div class="box">
+    <textarea id="in" rows="1" placeholder="Describe your plant network or ask an OT question…" autocomplete="off"></textarea>
+    <button class="send" id="send" onclick="send()">Send</button>
+  </div>
+  <div class="hint">OT Specialist AI keeps your conversation so it can give better plant-specific guidance next time.</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let mode='login', me=null;
+
+const GREETING="Hi — I'm your OT engineering assistant. I can help with PLC and HMI configuration, industrial protocols troubleshooting.";
+
+async function boot(){
+  try{
+    const r=await fetch('/api/me').then(r=>r.json());
+    if(r.authed){ me=r.username; showChat(); }
+    else showAuth();
+  }catch(e){ showAuth(); }
+}
+
+function setMode(m){
+  mode=m;
+  $('auth-title').textContent = m==='register'?'Create an account':'Sign in';
+  $('auth-lede').textContent  = m==='register'
+    ? 'Register to use the OT Specialist AI engineering assistant.'
+    : 'Access the OT Specialist AI engineering assistant.';
+  $('auth-go').textContent = m==='register'?'Create account':'Sign in';
+  $('p').autocomplete = m==='register'?'new-password':'current-password';
+  $('auth-swap').innerHTML = m==='register'
+    ? 'Already registered? <button class="lnk" onclick="setMode(\'login\')">Sign in</button>'
+    : 'New here? <button class="lnk" onclick="setMode(\'register\')">Create an account</button>';
+  $('auth-err').hidden=true;
+}
+
+function showAuth(){ $('auth').hidden=false; $('hdr').hidden=true; $('feed').hidden=true; $('composer').hidden=true; setMode('login'); $('u').focus(); }
+
+async function submitAuth(){
+  const username=$('u').value.trim(), password=$('p').value;
+  if(!username||!password){ return showErr('Enter a username and password.'); }
+  $('auth-go').disabled=true;
+  try{
+    const r=await fetch('/api/'+(mode==='register'?'register':'login'),{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})}).then(r=>r.json());
+    if(!r.ok){ showErr(r.error||'Could not sign in.'); }
+    else { me=r.username; showChat(); }
+  }catch(e){ showErr('Network error — try again.'); }
+  $('auth-go').disabled=false;
+}
+function showErr(m){ const e=$('auth-err'); e.textContent=m; e.hidden=false; }
+
+$('p').addEventListener('keydown',e=>{ if(e.key==='Enter') submitAuth(); });
+$('u').addEventListener('keydown',e=>{ if(e.key==='Enter') $('p').focus(); });
+
+async function logout(){ try{ await fetch('/api/logout',{method:'POST'}); }catch(e){} me=null; location.reload(); }
+
+// ---------- chat ----------
+let convStarted=false;
+const feed=$('feed'), inp=$('in'), btn=$('send');
+
+function showChat(){
+  $('auth').hidden=true; $('hdr').hidden=false; $('feed').hidden=false; $('composer').hidden=false;
+  $('who').textContent=me;
+  if(!feed.dataset.init){
+    feed.dataset.init='1';
+    const b=bubble('ai',GREETING+"\n\nTo give you plant-specific answers, tell me a bit about your environment — controllers, IP addressing and cell subnets, the protocols in use, and how you reach devices (management IPs, pivot hosts, lab credentials).");
+    const chips=document.createElement('div'); chips.className='chips';
+    ["We run a Siemens S7-1200 on the process cell",
+     "How do I segment my Modbus network from the business LAN?",
+     "We reach the PLC through a pivot VM — is that OK?"].forEach(t=>{
+      const c=document.createElement('div'); c.className='chip'; c.textContent=t;
+      c.onclick=()=>{ inp.value=t; inp.focus(); inp.dispatchEvent(new Event('input')); };
+      chips.appendChild(c);
+    });
+    b.parentElement.appendChild(chips);
+  }
+  inp.focus();
+}
+
+inp.addEventListener('input',()=>{inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,160)+'px';});
+inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+
+function bubble(role,text){
+  const wrap=document.createElement('div');
+  wrap.className='msg '+(role==='me'?'me':'ai');
+  wrap.innerHTML='<div class="av">'+(role==='me'?'You':'OT')+'</div>'+
+    '<div><div class="who">'+(role==='me'?'You':'OT Specialist AI')+'</div><div class="bubble"></div></div>';
+  wrap.querySelector('.bubble').textContent=text;
+  feed.appendChild(wrap);
+  window.scrollTo(0,document.body.scrollHeight);
+  return wrap.querySelector('.bubble');
+}
+
+async function send(){
+  const text=inp.value.trim(); if(!text) return;
+  inp.value=''; inp.style.height='auto'; btn.disabled=true;
+  bubble('me',text);
+  const out=bubble('ai',''); out.innerHTML='<span class="typing"><span></span><span></span><span></span></span>';
+  const ctrl=new AbortController(); const killer=setTimeout(()=>ctrl.abort(),90000);
+  try{
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:text}),signal:ctrl.signal});
+    if(res.status===401){ out.textContent='Your session expired — reloading…'; setTimeout(()=>location.reload(),900); return; }
+    const reader=res.body.getReader(); const dec=new TextDecoder(); let acc='';
+    out.textContent='';
+    while(true){ const {done,value}=await reader.read(); if(done) break;
+      acc+=dec.decode(value,{stream:true}); out.textContent=acc; window.scrollTo(0,document.body.scrollHeight); }
+    if(!acc.trim()) out.textContent='The assistant is busy — please send that again.';
+  }catch(e){ out.textContent='The assistant is busy — please send that again.'; }
+  clearTimeout(killer); btn.disabled=false; inp.focus();
+}
+
+boot();
+</script>
+</body>
+</html>
